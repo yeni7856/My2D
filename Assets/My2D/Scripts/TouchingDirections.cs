@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace My2D
@@ -61,6 +59,7 @@ namespace My2D
             //참조
             touchingCollier = GetComponent<CapsuleCollider2D>();
             animator = GetComponent<Animator>();
+
         }
 
         private void FixedUpdate()

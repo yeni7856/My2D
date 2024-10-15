@@ -1,0 +1,114 @@
+using UnityEngine;
+
+namespace My2D
+{
+    public class EnemyController : MonoBehaviour
+    {
+        #region Variables
+        private Rigidbody2D rb2D;
+        private Animator animator;
+        private TouchingDirections touchingDirections;
+
+        //플레이어 감지
+        public DetectionZone detectionZone;
+
+        //이동속도
+        [SerializeField] private float runSpeed = 4f;
+    
+        //이동방향
+        private Vector2 direction = Vector2.right;
+
+        //이동 가능 방향
+        public enum WalkableDirection { Left, Right } 
+        //현재 이동 방향 
+        private WalkableDirection walkDirection = WalkableDirection.Right;
+        public WalkableDirection WalkDirection
+        {
+            get {return walkDirection; }
+            set {
+                //이미지 플립
+                transform.localScale *= new Vector2(-1, 1);
+
+                //이동하는 방향값
+                if(value == WalkableDirection.Left)
+                {
+                    direction = Vector2.left;
+                }
+                else if (value == WalkableDirection.Right)
+                {
+                    direction = Vector2.right;
+                }
+                walkDirection = value;
+            }
+        }
+
+        [SerializeField] private bool hasTarget = false;
+        public bool HasTarget
+        {
+            get { return hasTarget; }
+            set 
+            { 
+                hasTarget = value;
+                animator.SetBool(AnimationString.HasTarget, value);
+            } 
+        }
+        //이동 가능 상태/불가능 상태 - 이동제한
+        public bool CanMove
+        {
+            get { return animator.GetBool(AnimationString.CanMove); }
+        }
+        //감속 개수
+        [SerializeField] private float stopRate = 0.2f;
+        #endregion
+
+
+        void Awake()
+        {
+            rb2D = GetComponent<Rigidbody2D>();
+            animator = GetComponent<Animator>();
+            touchingDirections = GetComponent<TouchingDirections>();
+        }
+        private void Update()
+        {
+            //적 감지 충돌체의 리스트 갯수 
+            HasTarget = (detectionZone.detectedColliders.Count > 0);    
+        }
+
+        void FixedUpdate()
+        {
+            //땅에서 이동시 벽을 만나면 방향 전환
+            if(touchingDirections.IsWall && touchingDirections.IsGround)
+            {
+                Flip();
+            }
+            
+
+            //이동 
+            if (CanMove)
+            {
+                rb2D.velocity = new Vector2(direction.x * runSpeed, rb2D.velocity.y);
+            }
+            else
+            {
+                //rb2D.velocity.x -> 0 : Lerp
+                rb2D.velocity = new Vector2(Mathf.Lerp(rb2D.velocity.x, 0f, stopRate), rb2D.velocity.y);
+            }
+            
+        }
+        void Flip()
+        {
+            if(WalkDirection == WalkableDirection.Left)
+            {
+                WalkDirection = WalkableDirection.Right;
+            }
+            else if (WalkDirection == WalkableDirection.Right)
+            {
+                WalkDirection = WalkableDirection.Left;
+            }
+            else
+            {
+                Debug.Log("Error Flip Direction");
+            }
+        }
+    }
+}
