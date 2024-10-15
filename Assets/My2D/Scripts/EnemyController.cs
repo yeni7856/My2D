@@ -30,7 +30,7 @@ namespace My2D
                 transform.localScale *= new Vector2(-1, 1);
 
                 //이동하는 방향값
-                if(value == WalkableDirection.Left)
+                if (value == WalkableDirection.Left)
                 {
                     direction = Vector2.left;
                 }
@@ -76,39 +76,43 @@ namespace My2D
 
         void FixedUpdate()
         {
-            //땅에서 이동시 벽을 만나면 방향 전환
-            if(touchingDirections.IsWall && touchingDirections.IsGround)
+            // 벽에 충돌 시 로그 출력
+            if (touchingDirections.IsWall)
             {
+                Debug.Log("벽에 충돌함");
+            }
+            Debug.Log("IsWall: " + touchingDirections.IsWall + ", IsGround: " + touchingDirections.IsGround);
+            // 땅에서 이동시 벽을 만나면 방향 전환
+            if (touchingDirections.IsWall && touchingDirections.IsGround)
+            {
+                // 방향 전환
                 Flip();
             }
-            
 
-            //이동 
+            // 이동 
             if (CanMove)
             {
                 rb2D.velocity = new Vector2(direction.x * runSpeed, rb2D.velocity.y);
             }
             else
             {
-                //rb2D.velocity.x -> 0 : Lerp
+                // rb2D.velocity.x -> 0 : Lerp
                 rb2D.velocity = new Vector2(Mathf.Lerp(rb2D.velocity.x, 0f, stopRate), rb2D.velocity.y);
             }
-            
+
         }
         void Flip()
         {
-            if(WalkDirection == WalkableDirection.Left)
+            // 현재 방향과 반대 방향으로만 반전
+            if (WalkDirection == WalkableDirection.Left && direction == Vector2.left)
             {
                 WalkDirection = WalkableDirection.Right;
             }
-            else if (WalkDirection == WalkableDirection.Right)
+            else if (WalkDirection == WalkableDirection.Right && direction == Vector2.right)
             {
                 WalkDirection = WalkableDirection.Left;
             }
-            else
-            {
-                Debug.Log("Error Flip Direction");
-            }
         }
+     
     }
 }

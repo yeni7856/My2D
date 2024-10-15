@@ -59,7 +59,7 @@ namespace My2D
             //참조
             touchingCollier = GetComponent<CapsuleCollider2D>();
             animator = GetComponent<Animator>();
-
+            contactFilter.SetLayerMask(LayerMask.GetMask("Ground"));
         }
 
         private void FixedUpdate()
