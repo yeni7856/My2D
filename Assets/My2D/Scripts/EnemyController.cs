@@ -61,7 +61,6 @@ namespace My2D
         [SerializeField] private float stopRate = 0.2f;
         #endregion
 
-
         void Awake()
         {
             rb2D = GetComponent<Rigidbody2D>();
