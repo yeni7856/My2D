@@ -12,6 +12,9 @@ namespace My2D
 
         private TouchingDirections touchingDirections;
 
+        //데미지어블 가저오기
+        private Damageable damageable;
+
         //플레이어 걷기 속도
         [SerializeField] private float walkSpeed = 4f;
         [SerializeField] private float runSpeed = 8f;
@@ -110,20 +113,29 @@ namespace My2D
         }
         #endregion
 
+
         private void Awake()
         {
             rb2D = this.GetComponent<Rigidbody2D>();
             animator = this.GetComponent<Animator>();
             //rb2D.velocity
             touchingDirections = GetComponent<TouchingDirections>();
+
+            damageable = GetComponent<Damageable>();
+            damageable.hitAction += OnHit; //데미지어블에서 가져와서 등록 (유니티액션 델리게이트 함수에 등록)
         }
 
         private void FixedUpdate()
         {
+            if (!damageable.LockVelocity) //잠겨서 적용안됨
+            {//플레이어 좌우 이동
+                rb2D.velocity = new Vector2(inputMove.x * CurrentMoveSpeed, rb2D.velocity.y);
+            }
+
             //플레이어 좌우 이동
             //rb2D.velocity = new Vector2(inputMove.x * walkSpeed, rb2D.velocity.y);
             //rb2D.velocity = new Vector2(inputMove.x * walkSpeed, inputMove.y * walkSpeed);
-            rb2D.velocity = new Vector2(inputMove.x * CurrentMoveSpeed, rb2D.velocity.y);
+            //rb2D.velocity = new Vector2(inputMove.x * CurrentMoveSpeed, rb2D.velocity.y);
             //애니메이션 값
             animator.SetFloat(AnimationString.YVelocity, rb2D.velocity.y);
         }
@@ -187,6 +199,10 @@ namespace My2D
             {
                 animator.SetTrigger(AnimationString.AttackTrigger);
             }
+        }
+        public void OnHit(float dmg, Vector2 knockback) 
+        {
+            rb2D.velocity = new Vector2(knockback.x, rb2D.velocity.y + knockback.y); //y는 기본축에 더하기
         }
     }
 }

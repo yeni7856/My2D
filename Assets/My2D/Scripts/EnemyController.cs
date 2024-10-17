@@ -9,8 +9,14 @@ namespace My2D
         private Animator animator;
         private TouchingDirections touchingDirections;
 
+        //데미지어블 가저오기
+        private Damageable damageable;
+
         //플레이어 감지
         public DetectionZone detectionZone;
+
+        //낭떨어지 감지
+        public DetectionZone detectionCliff;
 
         //이동속도
         [SerializeField] private float runSpeed = 4f;
@@ -66,6 +72,11 @@ namespace My2D
             rb2D = GetComponent<Rigidbody2D>();
             animator = GetComponent<Animator>();
             touchingDirections = GetComponent<TouchingDirections>();
+
+            damageable = GetComponent<Damageable>();
+            damageable.hitAction += OnHit;
+
+            detectionCliff.noColliderRemain += OnCliff;
         }
         private void Update()
         {
@@ -80,25 +91,26 @@ namespace My2D
             {
                 Debug.Log("벽에 충돌함");
             }
-            Debug.Log("IsWall: " + touchingDirections.IsWall + ", IsGround: " + touchingDirections.IsGround);
+            //Debug.Log("IsWall: " + touchingDirections.IsWall + ", IsGround: " + touchingDirections.IsGround);
             // 땅에서 이동시 벽을 만나면 방향 전환
             if (touchingDirections.IsWall && touchingDirections.IsGround)
             {
                 // 방향 전환
                 Flip();
             }
-
-            // 이동 
-            if (CanMove)
+            if(!damageable.LockVelocity)
             {
-                rb2D.velocity = new Vector2(direction.x * runSpeed, rb2D.velocity.y);
+                // 이동 
+                if (CanMove)
+                {
+                    rb2D.velocity = new Vector2(direction.x * runSpeed, rb2D.velocity.y);
+                }
+                else
+                {
+                    // rb2D.velocity.x -> 0 : Lerp
+                    rb2D.velocity = new Vector2(Mathf.Lerp(rb2D.velocity.x, 0f, stopRate), rb2D.velocity.y);
+                }
             }
-            else
-            {
-                // rb2D.velocity.x -> 0 : Lerp
-                rb2D.velocity = new Vector2(Mathf.Lerp(rb2D.velocity.x, 0f, stopRate), rb2D.velocity.y);
-            }
-
         }
         void Flip()
         {
@@ -112,6 +124,16 @@ namespace My2D
                 WalkDirection = WalkableDirection.Left;
             }
         }
-     
+        public void OnHit(float dmg, Vector2 knockback)
+        {
+            rb2D.velocity = new Vector2(knockback.x, rb2D.velocity.y + knockback.y); //y는 기본축에 더하기
+        }
+        public void OnCliff()
+        {
+            if (touchingDirections.IsGround)
+            {
+                Flip();
+            }
+        }
     }
 }
