@@ -73,7 +73,9 @@ namespace My2D
             animator = GetComponent<Animator>();
             touchingDirections = GetComponent<TouchingDirections>();
 
+            //가져와서
             damageable = GetComponent<Damageable>();
+            //저장
             damageable.hitAction += OnHit;
 
             detectionCliff.noColliderRemain += OnCliff;

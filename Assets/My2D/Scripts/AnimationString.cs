@@ -20,6 +20,7 @@ namespace My2D
         public static string CanMove = "CanMove";
         public static string HasTarget = "HasTarget";
         public static string LockVelocity = "LockVelocity";
+        public static string BowTrigger = "BowTrigger";
 
 
     }
